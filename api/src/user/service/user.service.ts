@@ -58,7 +58,7 @@ export class UserService {
     paginate(options: IPaginationOptions): Observable<Pagination<User>> {
         return from(paginate<User>(this.userRepository, options)).pipe(
             map((usersPageable: Pagination<User>) => {
-                usersPageable.items.forEach(function (v) {delete v.password});
+                usersPageable.items.forEach(function (v) { delete v.password });
 
                 return usersPageable;
             })
@@ -72,7 +72,7 @@ export class UserService {
     updateOne(id: number, user: User): Observable<any> {
         delete user.email;
         delete user.password;
-         delete user.role;
+        delete user.role;
 
         return from(this.userRepository.update(id, user));
     }
@@ -98,11 +98,11 @@ export class UserService {
         return this.findByMail(email).pipe(
             switchMap((user: User) => this.authService.comparePasswords(password, user.password).pipe(
                 map((match: boolean) => {
-                    if(match) {
-console.log('user---------------------------');
+                    if (match) {
+                        console.log('user---------------------------');
                         console.log(user);
 
-                        const {password, ...result} = user;
+                        const { password, ...result } = user;
                         return result;
                     } else {
                         throw Error;
