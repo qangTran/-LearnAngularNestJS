@@ -12,7 +12,7 @@ export interface UserData {
     itemsPerPage: number;
     totalPages: number;
     currentPage: number;
-  }, 
+  },
   links: {
     first: string;
     previous: string;
@@ -30,13 +30,31 @@ export class UserService {
 
   findAll(page: number, size: number): Observable<UserData> {
     let params = new HttpParams();
+    console.log(params)
 
     params = params.append('page', String(page));
     params = params.append('limit', String(size));
 
-    return this.http.get<UserData>('/api/users', {params}).pipe(
+    return this.http.get<UserData>('/api/users', { params }).pipe(
       map((userData: UserData) => userData),
       catchError(err => throwError(err))
     )
   }
+
+
+  paginateByName(page: number, size: number, username?: string): Observable<UserData> {
+    let params = new HttpParams();
+
+    params = params.append('page', String(page));
+    params = params.append('limit', String(size));
+    if (username) {
+      params = params.append('username', username);
+    }
+
+    return this.http.get<UserData>('/api/users', { params }).pipe(
+      map((userData: UserData) => userData),
+      catchError(err => throwError(err))
+    )
+  }
+
 }

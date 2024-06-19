@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/services/authentication-service/authentication.service';
-
-
-
+import { UserData, UserService } from 'src/app/services/user-service/user.service';
 import { map, tap } from 'rxjs/operators';
 import { PageEvent } from '@angular/material/paginator';
-import { UserData, UserService } from 'src/app/services/user-serivce/user.service';
+
+
 
 @Component({
   selector: 'app-users',
@@ -14,9 +13,9 @@ import { UserData, UserService } from 'src/app/services/user-serivce/user.servic
 })
 export class UsersComponent implements OnInit {
 
-
-  dataSource: UserData | null= null;
-  pageEvent: PageEvent | undefined;
+  filterValue?: string;
+  dataSource?: UserData;
+  pageEvent?: PageEvent;
   displayedColumns: string[] = ['id', 'name', 'username', 'email', 'role'];
 
   constructor(private userService: UserService) { }
@@ -27,7 +26,6 @@ export class UsersComponent implements OnInit {
 
   initDataSource() {
     this.userService.findAll(1, 10).pipe(
-      tap(users => console.log(users)),
       map((userData: UserData) => this.dataSource = userData)
     ).subscribe();
   }
@@ -36,12 +34,22 @@ export class UsersComponent implements OnInit {
     let page = event.pageIndex;
     let size = event.pageSize;
 
-    page = page +1;
 
-    this.userService.findAll(page, size).pipe(
-      map((userData: UserData) => this.dataSource = userData)
-    ).subscribe();
-
+    if(this.filterValue == null) {
+      page = page +1;
+      this.userService.findAll(page, size).pipe(
+        map((userData: UserData) => this.dataSource = userData)
+      ).subscribe();
+    } else {
+      this.userService.paginateByName(page, size, this.filterValue).pipe(
+        map((userData: UserData) => this.dataSource = userData)
+      ).subscribe()
+    }
   }
 
+  findByName(username?: string) {
+    this.userService.paginateByName(0, 10, username).pipe(
+      map((userData: UserData) => this.dataSource = userData)
+    ).subscribe()
+  }
 }
